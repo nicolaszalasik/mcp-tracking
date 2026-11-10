@@ -19,15 +19,40 @@ O nome do evento segue `{eventType}-a360_{objectName}-{objectDetail}`. O prefixo
 
 ## Instalação
 
-Sem clonar nada (precisa de acesso ao repositório e de credencial do GitHub no git):
+Precisa de acesso ao repositório, de credencial do GitHub no git, de Node 18+ e do Google Chrome (usado no `login`).
+
+### Kiro
+
+Crie ou edite `.kiro/settings/mcp.json` (só o projeto) ou `~/.kiro/settings/mcp.json` (global):
+
+```json
+{
+  "mcpServers": {
+    "tracking-central": {
+      "command": "npx",
+      "args": ["-y", "github:nicolaszalasik/mcp-tracking"],
+      "disabled": false,
+      "autoApprove": ["listar_destinos", "buscar_eventos", "ver_evento"]
+    }
+  }
+}
+```
+
+Ao salvar, o Kiro recarrega os servidores sozinho. O `autoApprove` libera só as tools de leitura. Deixe `login`, `criar_evento` e `adicionar_campo_evento` de fora, para o Kiro pedir sua aprovação.
+
+Se o Kiro não achar o `npx` (comum quando o Node vem do nvm), troque `"command": "npx"` pelo caminho absoluto que `which npx` mostrar no terminal.
+
+### Claude Code
 
 ```bash
 claude mcp add tracking-central --scope user -- npx -y github:nicolaszalasik/mcp-tracking
 ```
 
-O `npx` baixa o projeto e as dependências na primeira execução e guarda em cache. Para atualizar, rode `npx clear-npx-cache` e reinicie o Claude Code.
+### Atualizar e desenvolver
 
-Para desenvolver, clone o repositório e aponte para o arquivo local:
+O `npx` baixa o projeto e as dependências na primeira execução e guarda em cache. Para atualizar, rode `npx clear-npx-cache` e reinicie o cliente.
+
+Para desenvolver, clone o repositório e aponte para o arquivo local (no Kiro, `"command": "node"` e `"args": ["/caminho/para/mcp-tracking/src/server.js"]`):
 
 ```bash
 git clone https://github.com/nicolaszalasik/mcp-tracking.git ~/mcp-tracking
@@ -35,7 +60,7 @@ cd ~/mcp-tracking && npm install
 claude mcp add tracking-central --scope user -- node ~/mcp-tracking/src/server.js
 ```
 
-Reinicie o Claude Code. Na primeira vez, peça para rodar a tool `login`: abre o Google Chrome, você entra com a conta Microsoft da OLX e a sessão fica salva em `~/.config/mcp-tracking-central/session.json` (permissão 600). Quando expirar, o MCP avisa para rodar `login` de novo.
+Na primeira vez, peça para rodar a tool `login`: abre o Google Chrome, você entra com a conta Microsoft da OLX e a sessão fica salva em `~/.config/mcp-tracking-central/session.json` (permissão 600). Quando expirar, o MCP avisa para rodar `login` de novo.
 
 Sem Chrome, defina `TC_COOKIE` (header `Cookie` copiado do DevTools). Ele tem prioridade sobre a sessão salva. Nunca commite nem cole esse valor em chats.
 
