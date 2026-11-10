@@ -1,15 +1,25 @@
 # 📡 mcp-tracking
 
-```bash
-claude mcp add tracking-central --scope user -- npx -y github:nicolaszalasik/mcp-tracking
+Cole em `~/.kiro/settings/mcp.json` (global) ou `.kiro/settings/mcp.json` (só o projeto):
+
+```json
+{
+  "mcpServers": {
+    "tracking-central": {
+      "command": "npx",
+      "args": ["-y", "github:nicolaszalasik/mcp-tracking"],
+      "disabled": false,
+      "autoApprove": ["listar_destinos", "buscar_eventos", "ver_evento"]
+    }
+  }
+}
 ```
 
 ![MCP](https://img.shields.io/badge/MCP-server-6e0ad6?style=for-the-badge)
 ![Node](https://img.shields.io/badge/node-%E2%89%A5%2018-339933?style=for-the-badge&logo=node.js&logoColor=white)
-![Kiro](https://img.shields.io/badge/Kiro-compat%C3%ADvel-7c3aed?style=for-the-badge)
-![Claude Code](https://img.shields.io/badge/Claude%20Code-compat%C3%ADvel-d97757?style=for-the-badge)
+![Kiro](https://img.shields.io/badge/Kiro-MCP-7c3aed?style=for-the-badge)
 
-**Crie e edite eventos na Tracking Central da OLX conversando com a sua IA, sem abrir a tela.**
+**Crie e edite eventos na Tracking Central da OLX conversando com o Kiro, sem abrir a tela.**
 Peça o evento, confira a prévia e aprove. O nome, o schema e as tags saem no padrão da Autos 360.
 
 ---
@@ -26,46 +36,18 @@ Peça o evento, confira a prévia e aprove. O nome, o schema e as tags saem no p
 | ➕ | `adicionar_campo_evento` | Adiciona campos opcionais a um evento que já existe |
 
 > [!IMPORTANT]
-> `criar_evento` e `adicionar_campo_evento` **só mostram a prévia** por padrão. Eles gravam na central apenas depois que você aprova e a IA envia `confirmar: true`.
+> `criar_evento` e `adicionar_campo_evento` **só mostram a prévia** por padrão. Eles gravam na central apenas depois que você aprova e o Kiro envia `confirmar: true`.
 
 ## 🚀 Instalação
 
 Você precisa de **Node 18+**, do **Google Chrome** (usado no `login`) e de acesso ao repositório, com credencial do GitHub no git.
 
-<details open>
-<summary><b>Claude Code</b></summary>
+1. Cole o JSON do topo no `mcp.json` do Kiro. Ao salvar, o Kiro recarrega os servidores sozinho.
+2. Peça: **"rode a tool login"**. Uma janela do Chrome abre, você entra com a conta da OLX e pronto. A sessão fica salva no seu computador.
 
-```bash
-claude mcp add tracking-central --scope user -- npx -y github:nicolaszalasik/mcp-tracking
-```
-
-</details>
-
-<details open>
-<summary><b>Kiro</b></summary>
-
-Crie ou edite `.kiro/settings/mcp.json` (só o projeto) ou `~/.kiro/settings/mcp.json` (global):
-
-```json
-{
-  "mcpServers": {
-    "tracking-central": {
-      "command": "npx",
-      "args": ["-y", "github:nicolaszalasik/mcp-tracking"],
-      "disabled": false,
-      "autoApprove": ["listar_destinos", "buscar_eventos", "ver_evento"]
-    }
-  }
-}
-```
-
-Ao salvar, o Kiro recarrega os servidores sozinho. O `autoApprove` libera só as tools de **leitura**. Deixe `login`, `criar_evento` e `adicionar_campo_evento` de fora, para o Kiro pedir a sua aprovação.
+O `autoApprove` libera só as tools de **leitura**. Deixe `login`, `criar_evento` e `adicionar_campo_evento` de fora, para o Kiro pedir a sua aprovação.
 
 Se o Kiro não achar o `npx` (comum quando o Node vem do nvm), troque `"command": "npx"` pelo caminho absoluto que `which npx` mostrar no terminal.
-
-</details>
-
-Depois de instalar, peça: **"rode a tool login"**. Uma janela do Chrome abre, você entra com a conta da OLX e pronto. A sessão fica salva no seu computador.
 
 ## 💬 Exemplos de pedidos
 
@@ -78,13 +60,13 @@ descrição "Ao clicar em Confirmar e retransmitir", com o campo extra tipoRejei
 Adicione o campo tipoRejeicao ao evento 11536.
 ```
 
-A IA monta a prévia, você confere e aprova. Se faltar algo, como as **tags** ou o **time** dono, ela pergunta antes de criar.
+O Kiro monta a prévia, você confere e aprova. Se faltar algo, como as **tags** ou o **time** dono, ele pergunta antes de criar.
 
 ## 🧩 Como funciona
 
 ```mermaid
 flowchart LR
-    A["Kiro / Claude Code"] -->|MCP| B["mcp-tracking"]
+    A["Kiro"] -->|MCP| B["mcp-tracking"]
     B -->|API| C[("Tracking Central")]
     B -.->|"login (1 vez)"| D["Chrome + Microsoft"]
     D -.->|"sessão salva"| B
@@ -93,15 +75,15 @@ flowchart LR
 ```mermaid
 sequenceDiagram
     actor Dev
-    participant IA
+    participant Kiro
     participant MCP as mcp-tracking
     participant TC as Tracking Central
-    Dev->>IA: "Crie o evento X"
-    IA->>MCP: criar_evento (confirmar: false)
-    MCP-->>IA: prévia do que será enviado
-    IA-->>Dev: mostra a prévia
-    Dev->>IA: "Pode criar"
-    IA->>MCP: criar_evento (confirmar: true)
+    Dev->>Kiro: "Crie o evento X"
+    Kiro->>MCP: criar_evento (confirmar: false)
+    MCP-->>Kiro: prévia do que será enviado
+    Kiro-->>Dev: mostra a prévia
+    Dev->>Kiro: "Pode criar"
+    Kiro->>MCP: criar_evento (confirmar: true)
     MCP->>TC: POST /api/events
     TC-->>Dev: evento criado
 ```
@@ -121,7 +103,11 @@ Todo evento nasce com os campos `userGuid`, `organizationGuid` e `temaExperienci
 
 ## ⚙️ Configuração (opcional)
 
-Os padrões já servem ao time Altimus. Para mudar, use variáveis de ambiente. No Kiro, ponha dentro de `"env"` no `mcp.json`.
+Os padrões já servem ao time Altimus. Para mudar, ponha as variáveis dentro de `"env"` no `mcp.json`:
+
+```json
+"env": { "TC_TAGS": "altimus,web", "TC_OWNER_TEAM_ID": "77" }
+```
 
 | Variável | Padrão | Para que serve |
 | --- | --- | --- |
@@ -145,10 +131,10 @@ Os padrões já servem ao time Altimus. Para mudar, use variáveis de ambiente. 
 | Sintoma | O que fazer |
 | --- | --- |
 | "Sessão ... ausente ou expirada" | Peça para rodar a tool `login` |
-| `npx` não encontrado no Kiro | Use o caminho absoluto de `which npx` em `command` |
+| `npx` não encontrado | Use o caminho absoluto de `which npx` em `command` |
 | Falha ao baixar o projeto | Confira o acesso ao repositório e a credencial do GitHub no git |
 | Não abre o Chrome no `login` | Instale o Google Chrome |
-| Quero a versão mais nova | Rode `npx clear-npx-cache` e reinicie o cliente |
+| Quero a versão mais nova | Rode `npx clear-npx-cache` e reinicie o Kiro |
 
 ## 👩‍💻 Desenvolvimento
 
@@ -159,10 +145,12 @@ npm install
 npm test
 ```
 
-Para testar a sua cópia local, aponte o cliente para `node /caminho/para/mcp-tracking/src/server.js`.
+Para testar a sua cópia local, troque no `mcp.json` o `command` e o `args`:
 
-- Claude Code: `claude mcp add tracking-central --scope user -- node /caminho/para/mcp-tracking/src/server.js`
-- Kiro: `"command": "node"` e `"args": ["/caminho/para/mcp-tracking/src/server.js"]`
+```json
+"command": "node",
+"args": ["/caminho/para/mcp-tracking/src/server.js"]
+```
 
 Os testes cobrem a montagem dos payloads e **não** chamam a central.
 
