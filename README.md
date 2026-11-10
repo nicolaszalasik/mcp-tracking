@@ -19,10 +19,19 @@ O nome do evento segue `{eventType}-a360_{objectName}-{objectDetail}`. O prefixo
 
 ## Instalação
 
+Sem clonar nada (precisa de acesso ao repositório e de credencial do GitHub no git):
+
+```bash
+claude mcp add tracking-central --scope user -- npx -y github:nicolaszalasik/mcp-tracking
+```
+
+O `npx` baixa o projeto e as dependências na primeira execução e guarda em cache. Para atualizar, rode `npx clear-npx-cache` e reinicie o Claude Code.
+
+Para desenvolver, clone o repositório e aponte para o arquivo local:
+
 ```bash
 git clone https://github.com/nicolaszalasik/mcp-tracking.git ~/mcp-tracking
-cd ~/mcp-tracking
-npm install
+cd ~/mcp-tracking && npm install
 claude mcp add tracking-central --scope user -- node ~/mcp-tracking/src/server.js
 ```
 

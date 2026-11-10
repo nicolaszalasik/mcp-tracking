@@ -4,6 +4,9 @@
   "private": true,
   "description": "MCP para criar e editar eventos na Tracking Central (OLX).",
   "type": "module",
+  "bin": {
+    "mcp-tracking-central": "src/server.js"
+  },
   "engines": {
     "node": ">=18"
   },
